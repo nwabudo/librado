@@ -2,6 +2,7 @@ package io.core.libra.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.core.libra.exception.Messages;
 import lombok.ToString;
 
 import java.util.Date;
@@ -20,6 +21,13 @@ public class ApiResponse<T> {
     public ApiResponse() {
     }
 
+    public ApiResponse(T data) {
+        timestamp = new Date().toString();
+        this.status = true;
+        this.message = Messages.SUCCESS.getMessage();
+        this.data = data;
+    }
+
     public ApiResponse(T data, String message, boolean status) {
         timestamp = new Date().toString();
         this.status = status;
@@ -33,10 +41,6 @@ public class ApiResponse<T> {
         this.status = status;
         this.message = message;
         this.data = null;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
     }
 
     public boolean getStatus() {

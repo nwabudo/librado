@@ -1,9 +1,9 @@
-package io.core.libra.service.impl;
+package io.core.libra;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest()
 public class BaseTest {
 }

@@ -59,25 +59,60 @@ public class BookServiceImpl implements BookService {
     public ApiResponse<String> borrowBook(BorrowModel borrowModel) {
         try {
             User user = userRepository.findById(borrowModel.getUserId()).orElseThrow(() ->
-                    new UserServiceException(Messages.NO_USER_RECORD_FOUND.getErrorMessage()));
+                    new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
             Book book = bookRepository.findByBookISBNCode(borrowModel.getIsbnCode()).orElseThrow(() ->
-                    new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getErrorMessage()));
+                    new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getMessage()));
             Property property = propertyRepository.findByPropertyCode(USER_LIMIT_CODE);
 
             int userBookLimit = property == null ? DEFAULT_USER_LIMIT: extractIntegerValue(property);
 
             Set<Book> userBooks = user.getBooks();
-            if(!user.getBooks().contains(book) && userBooks.size() < userBookLimit){
+
+            // Condition to check if the user has the book in his collection, has not exceeded
+            // the limit and that the book qty is greater than zero
+            if(!userBooks.contains(book) && userBooks.size() < userBookLimit && book.getQuantity() > 0){
+                int newQty = book.getQuantity() - 1;
+                book.setQuantity(newQty);
                 user.addBook(book);
+
+                // Update entity
                 userRepository.save(user);
-                return new ApiResponse<>(Messages.SUCCESS_BORROWING_BOOK.getErrorMessage(), true);
+                return new ApiResponse<>(Messages.SUCCESS_BORROWING_BOOK.getMessage(), true);
             }
-            return new ApiResponse<>(Messages.BOOK_RECORD_ALREADY_EXISTS.getErrorMessage(), false);
+            return new ApiResponse<>(Messages.BOOK_RECORD_ALREADY_EXISTS.getMessage(), false);
+        } catch (UserServiceException ex){
+            throw new UserServiceException(ex.getMessage());
+        } catch (Exception ex){
+            log.error(ex.getMessage());
+            return new ApiResponse<>(Messages.PROBLEM_BORROWING_BOOK.getMessage(), false);
+        }
+    }
+
+    @Override
+    public ApiResponse<String> returnBook(BorrowModel borrowModel) {
+        try {
+            User user = userRepository.findById(borrowModel.getUserId()).orElseThrow(() ->
+                    new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
+            Book book = bookRepository.findByBookISBNCode(borrowModel.getIsbnCode()).orElseThrow(() ->
+                    new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getMessage()));
+
+            Set<Book> userBooks = user.getBooks();
+            // Condition to check if the user has the book in his collection
+            if(userBooks.contains(book)){
+                int newQty = book.getQuantity() + 1;
+                book.setQuantity(newQty);
+                user.removeBook(book);
+                // Update entity
+                userRepository.save(user);
+                bookRepository.save(book);
+                return new ApiResponse<>(Messages.SUCCESS_RETURNING_BOOK.getMessage(), true);
+            }
+            return new ApiResponse<>(Messages.BOOK_RECORD_DOES_NOT_EXISTS.getMessage(), false);
         } catch (UserServiceException ex){
             return new ApiResponse<>(ex.getMessage(), false);
         } catch (Exception ex){
             log.error(ex.getMessage());
-            return new ApiResponse<>(Messages.PROBLEM_BORROWING_BOOK.getErrorMessage(), false);
+            return new ApiResponse<>(Messages.PROBLEM_BORROWING_BOOK.getMessage(), false);
         }
     }
 

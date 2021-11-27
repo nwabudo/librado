@@ -5,6 +5,7 @@ import io.core.libra.dtos.BookDTO;
 import io.core.libra.dtos.BorrowModel;
 import io.core.libra.dtos.assembler.BookAssembler;
 import io.core.libra.entity.Book;
+import io.core.libra.exception.Messages;
 import io.core.libra.service.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -24,25 +25,31 @@ public class LibraryController {
     private final BookAssembler bookAssembler;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = { "application/hal+json" })
-    public ResponseEntity<CollectionModel<BookDTO>> getAllBooks(
+    public ResponseEntity<ApiResponse<CollectionModel<BookDTO>>> getAllBooks(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
         List<Book> books = this.bookService.getBooks(page, size);
         return new ResponseEntity<>(
-                bookAssembler.toCollectionModel(books),
+                new ApiResponse<>(bookAssembler.toCollectionModel(books)),
                 HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{isbnCode}", method = RequestMethod.GET, produces = { "application/hal+json" })
-    public ResponseEntity<BookDTO> getByBookISBNCode(@PathVariable("isbnCode") String bookISBNCode) {
-        return bookService.findBookByISBNCode(bookISBNCode)
-                .map(bookAssembler::toModel)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<BookDTO>> getByBookISBNCode(@PathVariable("isbnCode") String bookISBNCode) {
+        Book book = bookService.findBookByISBNCode(bookISBNCode).orElse(null);
+        ApiResponse<BookDTO> bookDTO = book != null ? new ApiResponse<>(bookAssembler.toModel(book))
+                : new ApiResponse<>(Messages.NO_BOOK_RECORD_FOUND.getMessage(), false);
+        HttpStatus status = !bookDTO.getStatus() ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return new ResponseEntity<>(bookDTO, status);
     }
 
-    @RequestMapping(value = "/borrow", method = RequestMethod.POST)
+    @RequestMapping(value = "/borrow", method = RequestMethod.PUT)
     public ResponseEntity<ApiResponse<String>> borrowBook(@Valid @RequestBody BorrowModel borrowModel){
         return new ResponseEntity<>(bookService.borrowBook(borrowModel), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/return", method = RequestMethod.PUT)
+    public ResponseEntity<ApiResponse<String>> returnBook(@Valid @RequestBody BorrowModel borrowModel){
+        return new ResponseEntity<>(bookService.returnBook(borrowModel), HttpStatus.OK);
     }
 }

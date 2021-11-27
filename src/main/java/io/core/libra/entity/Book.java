@@ -11,6 +11,7 @@ import java.util.Set;
 @Table(name = "tbl_book")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded= true, callSuper = false)
+@ToString(exclude = {"users"})
 public class Book extends AuditModel {
 
     @Column(length = 100)

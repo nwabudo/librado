@@ -23,6 +23,8 @@ public class BookAssembler extends RepresentationModelAssemblerSupport<Book, Boo
 
 	@Override
 	public BookDTO toModel(Book entity) {
+		if(entity == null) return null;
+
 		BookDTO model = instantiateModel(entity);
 		model.setBookImageUrl(entity.getBookImageUrl());
 		model.setAuthorName(entity.getAuthorName());

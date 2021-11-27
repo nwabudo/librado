@@ -14,4 +14,6 @@ public interface BookService {
     List<Book> getBooks(int page, int size);
 
     ApiResponse<String> borrowBook(BorrowModel borrowModel);
+
+    ApiResponse<String> returnBook(BorrowModel borrowModel);
 }

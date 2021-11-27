@@ -2,6 +2,7 @@ package io.core.libra.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 @Table(name = "tbl_user")
 @Data
 @NoArgsConstructor
+@ToString(exclude = {"books"})
 public class User extends AuditModel {
 
     @Column(length = 50, nullable = false)
@@ -20,6 +22,7 @@ public class User extends AuditModel {
     private String email;
 
     @ManyToMany(
+            fetch = FetchType.EAGER,
             cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
