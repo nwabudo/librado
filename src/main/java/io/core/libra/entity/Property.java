@@ -11,7 +11,8 @@ import javax.persistence.Table;
 @Data
 public class Property extends AuditModel {
 
-    @Column(unique = true)
+    @Column(unique = true, length = 50)
     private String propertyCode;
+
     private String propertyValue;
 }

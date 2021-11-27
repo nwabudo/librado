@@ -1,6 +1,7 @@
 package io.core.libra.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "tbl_user")
 @Data
+@NoArgsConstructor
 public class User extends AuditModel {
 
     @Column(length = 50, nullable = false)
@@ -17,7 +19,8 @@ public class User extends AuditModel {
     @Column(nullable = false, length = 50, unique = true)
     private String email;
 
-    @ManyToMany(cascade = {
+    @ManyToMany(
+            cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
@@ -26,6 +29,12 @@ public class User extends AuditModel {
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private Set<Book> books = new HashSet<>();
+
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+        this.books = new HashSet<>();
+    }
 
     public void addBook(Book book) {
         books.add(book);

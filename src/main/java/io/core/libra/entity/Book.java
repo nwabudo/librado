@@ -28,6 +28,6 @@ public class Book extends AuditModel {
 
     private Integer quantity;
 
-    @ManyToMany(mappedBy = "books")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "books")
     private Set<User> users = new HashSet<>();
 }

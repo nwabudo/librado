@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PropertyRepository  extends JpaRepository<Property, Long> {
+
+    Property findByPropertyCode(String propertyCode);
 }
