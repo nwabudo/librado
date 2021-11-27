@@ -16,7 +16,9 @@ spring:
         jdbc:
           time_zone: UTC
     open-in-view: false #this config disables database queries which may be performed during view rendering
-
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
 logging:
   level:
     org:
