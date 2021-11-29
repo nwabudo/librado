@@ -7,7 +7,7 @@ import javax.validation.constraints.Email;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginModel {
+public class LoginDTO {
 
     @Email(message = "Enter a valid Email")
     private String email;

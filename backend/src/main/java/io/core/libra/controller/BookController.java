@@ -2,7 +2,7 @@ package io.core.libra.controller;
 
 import io.core.libra.dtos.ApiResponse;
 import io.core.libra.dtos.BookDTO;
-import io.core.libra.dtos.BorrowModel;
+import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.dtos.assembler.BookAssembler;
 import io.core.libra.entity.Book;
 import io.core.libra.exception.Messages;
@@ -44,12 +44,12 @@ public class BookController {
     }
 
     @RequestMapping(value = "/borrow", method = RequestMethod.PUT)
-    public ResponseEntity<ApiResponse<String>> borrowBook(@Valid @RequestBody BorrowModel borrowModel){
-        return new ResponseEntity<>(bookService.borrowBook(borrowModel), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<String>> borrowBook(@Valid @RequestBody BorrowDTO borrowDTO){
+        return new ResponseEntity<>(bookService.borrowBook(borrowDTO), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/return", method = RequestMethod.PUT)
-    public ResponseEntity<ApiResponse<String>> returnBook(@Valid @RequestBody BorrowModel borrowModel){
-        return new ResponseEntity<>(bookService.returnBook(borrowModel), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<String>> returnBook(@Valid @RequestBody BorrowDTO borrowDTO){
+        return new ResponseEntity<>(bookService.returnBook(borrowDTO), HttpStatus.OK);
     }
 }

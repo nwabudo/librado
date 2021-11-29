@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserModel {
+public class UserDTO {
 
     private long id;
 
@@ -24,7 +24,7 @@ public class UserModel {
     @NotEmpty(message = "LastName cannot be Empty")
     private String lastName;
 
-    public UserModel(String email, String firstName, String lastName) {
+    public UserDTO(String email, String firstName, String lastName) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;

@@ -43,6 +43,10 @@ public class User extends AuditModel {
         this.books = new HashSet<>();
     }
 
+    public User(String email) {
+        this.email = email;
+    }
+
     public void addBook(Book book) {
         books.add(book);
         book.getUsers().add(this);

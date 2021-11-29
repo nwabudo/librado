@@ -4,7 +4,7 @@ import io.core.libra.dao.BookRepository;
 import io.core.libra.dao.PropertyRepository;
 import io.core.libra.dao.UserRepository;
 import io.core.libra.dtos.ApiResponse;
-import io.core.libra.dtos.BorrowModel;
+import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.entity.Book;
 import io.core.libra.entity.Property;
 import io.core.libra.entity.User;
@@ -56,11 +56,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public ApiResponse<String> borrowBook(BorrowModel borrowModel) {
+    public ApiResponse<String> borrowBook(BorrowDTO borrowDTO) {
         try {
-            User user = userRepository.findById(borrowModel.getUserId()).orElseThrow(() ->
+            User user = userRepository.findById(borrowDTO.getUserId()).orElseThrow(() ->
                     new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
-            Book book = bookRepository.findByBookISBNCode(borrowModel.getIsbnCode()).orElseThrow(() ->
+            Book book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElseThrow(() ->
                     new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getMessage()));
             Property property = propertyRepository.findByPropertyCode(USER_LIMIT_CODE);
 
@@ -89,11 +89,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public ApiResponse<String> returnBook(BorrowModel borrowModel) {
+    public ApiResponse<String> returnBook(BorrowDTO borrowDTO) {
         try {
-            User user = userRepository.findById(borrowModel.getUserId()).orElseThrow(() ->
+            User user = userRepository.findById(borrowDTO.getUserId()).orElseThrow(() ->
                     new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
-            Book book = bookRepository.findByBookISBNCode(borrowModel.getIsbnCode()).orElseThrow(() ->
+            Book book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElseThrow(() ->
                     new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getMessage()));
 
             Set<Book> userBooks = user.getBooks();

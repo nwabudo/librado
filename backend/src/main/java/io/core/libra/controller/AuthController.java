@@ -1,7 +1,7 @@
 package io.core.libra.controller;
 
 import io.core.libra.dtos.ApiResponse;
-import io.core.libra.dtos.UserModel;
+import io.core.libra.dtos.UserDTO;
 import io.core.libra.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,15 +21,15 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<UserModel>> createUser(@Valid @RequestBody UserModel userModel){
-        ApiResponse<UserModel> response = userService.createUser(userModel);
+    public ResponseEntity<ApiResponse<UserDTO>> createUser(@Valid @RequestBody UserDTO userDTO){
+        ApiResponse<UserDTO> response = userService.createUser(userDTO);
         HttpStatus status = response.getStatus() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(response, status);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<UserModel>> findUserByEmail(@Email @RequestParam("email") String email){
-        ApiResponse<UserModel> response = userService.userSearchByEmail(email);
+    public ResponseEntity<ApiResponse<UserDTO>> findUserByEmail(@Email @RequestParam("email") String email){
+        ApiResponse<UserDTO> response = userService.userSearchByEmail(email);
         HttpStatus status = response.getStatus() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(response, status);
     }

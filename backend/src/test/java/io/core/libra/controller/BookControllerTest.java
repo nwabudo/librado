@@ -1,7 +1,7 @@
 package io.core.libra.controller;
 
 import io.core.libra.BaseTest;
-import io.core.libra.dtos.BorrowModel;
+import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.exception.Messages;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.DisplayName;
@@ -46,19 +46,19 @@ class BookControllerTest extends BaseTest {
 
     @Test
     void borrowBook() throws Exception {
-        BorrowModel borrowModel = new BorrowModel("ISBN2309872JT", 1L);
-        borrowBook(borrowModel, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
+        BorrowDTO borrowDTO = new BorrowDTO("ISBN2309872JT", 1L);
+        borrowBook(borrowDTO, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
     }
 
     @Test
     void returnBook() throws Exception {
-        BorrowModel borrowModel = new BorrowModel("ISBN3438092JO", 1L);
+        BorrowDTO borrowDTO = new BorrowDTO("ISBN3438092JO", 1L);
 
-        borrowBook(borrowModel, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
-        getBookByISBNCode(borrowModel.getIsbnCode(), "$.data.quantity", 9, status().isOk());
+        borrowBook(borrowDTO, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
+        getBookByISBNCode(borrowDTO.getIsbnCode(), "$.data.quantity", 9, status().isOk());
 
-        returnBook(borrowModel, "$.message", Messages.SUCCESS_RETURNING_BOOK.getMessage(), status().isOk());
-        getBookByISBNCode(borrowModel.getIsbnCode(), "$.data.quantity", 10, status().isOk());
+        returnBook(borrowDTO, "$.message", Messages.SUCCESS_RETURNING_BOOK.getMessage(), status().isOk());
+        getBookByISBNCode(borrowDTO.getIsbnCode(), "$.data.quantity", 10, status().isOk());
     }
 
     private void getAllBook(int page, int size, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
@@ -77,17 +77,17 @@ class BookControllerTest extends BaseTest {
                 .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)));
     }
 
-    private void borrowBook(BorrowModel borrowModel, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
+    private void borrowBook(BorrowDTO borrowDTO, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
         mockMvc.perform(put(URL_BASE + "/borrow")
-                        .contentType(APPLICATION_JSON).content(asJsonString(borrowModel)))
+                        .contentType(APPLICATION_JSON).content(asJsonString(borrowDTO)))
                 .andExpect(expectedStatus)
                 .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)))
                 .andDo(print());
     }
 
-    private void returnBook(BorrowModel borrowModel, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
+    private void returnBook(BorrowDTO borrowDTO, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
         mockMvc.perform(put(URL_BASE + "/return")
-                        .contentType(APPLICATION_JSON).content(asJsonString(borrowModel)))
+                        .contentType(APPLICATION_JSON).content(asJsonString(borrowDTO)))
                 .andExpect(expectedStatus)
                 .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)))
                 .andDo(print());
