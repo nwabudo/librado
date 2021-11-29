@@ -18,8 +18,8 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/v1/library")
-public class LibraryController {
+@RequestMapping("api/v1/book")
+public class BookController {
 
     private final BookService bookService;
     private final BookAssembler bookAssembler;

@@ -20,9 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-class LibraryControllerTest extends BaseTest {
+class BookControllerTest extends BaseTest {
 
-    private final String URL_BASE = "/api/v1/library";
+    private final String URL_BASE = "/api/v1/book";
 
     @Autowired
     private MockMvc mockMvc;

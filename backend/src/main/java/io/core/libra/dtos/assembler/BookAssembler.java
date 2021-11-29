@@ -1,6 +1,6 @@
 package io.core.libra.dtos.assembler;
 
-import io.core.libra.controller.LibraryController;
+import io.core.libra.controller.BookController;
 import io.core.libra.dtos.BookDTO;
 import io.core.libra.entity.Book;
 import org.springframework.hateoas.CollectionModel;
@@ -18,7 +18,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class BookAssembler extends RepresentationModelAssemblerSupport<Book, BookDTO> {
 
 	public BookAssembler() {
-		super(LibraryController.class, BookDTO.class);
+		super(BookController.class, BookDTO.class);
 	}
 
 	@Override
@@ -32,14 +32,14 @@ public class BookAssembler extends RepresentationModelAssemblerSupport<Book, Boo
 		model.setBookISBNCode(entity.getBookISBNCode());
 		model.setQuantity(entity.getQuantity());
 
-		model.add(linkTo(methodOn(LibraryController.class).getByBookISBNCode(entity.getBookISBNCode())).withSelfRel());
+		model.add(linkTo(methodOn(BookController.class).getByBookISBNCode(entity.getBookISBNCode())).withSelfRel());
 		return model;
 	}
 
 	@Override
 	public CollectionModel<BookDTO> toCollectionModel(Iterable<? extends Book> entities) {
 		CollectionModel<BookDTO> bookModels = super.toCollectionModel(entities);
-		bookModels.add(linkTo(methodOn(LibraryController.class).getAllBooks(0, 20)).withSelfRel());
+		bookModels.add(linkTo(methodOn(BookController.class).getAllBooks(0, 20)).withSelfRel());
 		return bookModels;
 	}
 
@@ -56,7 +56,7 @@ public class BookAssembler extends RepresentationModelAssemblerSupport<Book, Boo
 						.quantity(book.getQuantity())
 						.build()
 						.add(linkTo(
-							methodOn(LibraryController.class)
+							methodOn(BookController.class)
 									.getByBookISBNCode(book.getBookISBNCode()))
 							.withSelfRel()))
 				.collect(Collectors.toList());

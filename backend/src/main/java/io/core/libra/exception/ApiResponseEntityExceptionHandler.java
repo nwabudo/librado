@@ -3,13 +3,16 @@ package io.core.libra.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -23,6 +26,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.core.libra.exception.Messages.*;
 
 @ControllerAdvice
 @RestController
@@ -74,7 +80,7 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return buildResponseEntity("Malformed JSON request", HttpStatus.UNPROCESSABLE_ENTITY);
+        return buildResponseEntity(MALFORMED_JSON_REQUEST.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     /**
@@ -105,6 +111,14 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
         return handleExceptionInternal(ex, getError(ex), headers, status, request);
     }
 
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
+        String allowedMethods = StringUtils.collectionToCommaDelimitedString(supportedMethods);
+        String message = String.format("%s %s", METHOD_NOT_SUPPORTED.getMessage(), allowedMethods);
+        return handleExceptionInternal(ex, getError(message), headers, status, request);
+    }
+
     /**
      * Handle HttpMediaTypeNotSupportedException. This one triggers when JSON is invalid as well.
      *
@@ -119,7 +133,7 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
             HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         StringBuilder builder = new StringBuilder();
         builder.append(ex.getContentType());
-        builder.append(" media type is not supported. Supported media types are ");
+        builder.append(MEDIA_TYPE_NOT_SUPPORTED.getMessage());
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
         return buildResponseEntity(builder.substring(0, builder.length() - 2), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
@@ -136,7 +150,7 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotWritable(
             HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return buildResponseEntity("Error writing JSON output", HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponseEntity(ERROR_WRITING_JSON_RESPONSE.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -160,7 +174,7 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
     }
 
     private ResponseEntity<Object> buildResponseEntity(Object apiResponse, HttpStatus status) {
-        return new ResponseEntity<>(getError("Validation Errors", apiResponse), status);
+        return new ResponseEntity<>(getError(Messages.VALIDATION_ERRORS.getMessage(), apiResponse), status);
     }
 
     private Map<String, String> getValidationErrors(Set<ConstraintViolation<?>> constraintViolations) {

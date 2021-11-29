@@ -36,7 +36,6 @@ public class ApiResponse<T> {
     }
 
     public ApiResponse(String message, boolean status) {
-
         timestamp = new Date().toString();
         this.status = status;
         this.message = message;

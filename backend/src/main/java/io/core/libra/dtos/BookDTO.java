@@ -10,7 +10,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @JsonRootName(value = "book")
 @Relation(collectionRelation = "books", itemRelation = "item")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,6 +19,7 @@ public class BookDTO extends RepresentationModel<BookDTO> {
 	private String bookTitle;
 	private String authorName;
 	private String bookImageUrl;
+	@EqualsAndHashCode.Include
 	private String bookISBNCode;
 	private Integer quantity;
 }
