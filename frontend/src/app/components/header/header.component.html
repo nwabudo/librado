@@ -1,1 +1,38 @@
-<p>header works!</p>
+<header>
+
+    <div class="navbar navbar-expand-lg navbar-dark bg-secondary fixed-top">
+        <div class="container d-flex justify-content-between">
+
+            <a class="not-select navbar-brand d-flex align-items-center">
+                <img src="../../../assets/svg/book-opened-symmetrical-shape-svgrepo-com.svg" alt="Book Image" width="40" height="40" >
+                <strong class="px-2 brand-name"> Libra</strong>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader"
+                aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarHeader">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a routerLink = "/home" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/contact">Contact Us</a>
+                    </li>
+                    <li *ngIf="!isLoggedIn" class="nav-item">
+                        <a class="nav-link" routerLink="/signup">Sign up</a>
+                    </li>
+                    <li *ngIf="!isLoggedIn" class="nav-item">
+                        <a class="nav-link" routerLink="/login">Login</a>
+                    </li>
+                    <li *ngIf="isLoggedIn" class="nav-item">
+                        <a class="nav-link" (click)="logout()" style="cursor: pointer;">Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</header>

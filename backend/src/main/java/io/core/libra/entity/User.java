@@ -16,7 +16,10 @@ import java.util.Set;
 public class User extends AuditModel {
 
     @Column(length = 50, nullable = false)
-    private String name;
+    private String firstName;
+
+    @Column(length = 50, nullable = false)
+    private String lastName;
 
     @Column(nullable = false, length = 50, unique = true)
     private String email;
@@ -33,8 +36,9 @@ public class User extends AuditModel {
     )
     private Set<Book> books = new HashSet<>();
 
-    public User(String name, String email) {
-        this.name = name;
+    public User(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.books = new HashSet<>();
     }

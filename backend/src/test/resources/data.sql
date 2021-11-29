@@ -1,11 +1,10 @@
 -- Insert into User Table
 INSERT INTO tbl_user
-(created_at, updated_at, email, name)
-SELECT now(), now(), 'nwabudoemmanuel@gmail.com', 'Emmanuel Nwabudo'
+(created_at, updated_at, email, first_name, last_name)
+SELECT now(), now(), 'nwabudoemmanuel@gmail.com', 'Emmanuel', 'Nwabudo'
 WHERE NOT EXISTS (
         SELECT email FROM tbl_user WHERE email = 'nwabudoemmanuel@gmail.com'
     );
-
 
 -- Insert into Property Table
 INSERT INTO tbl_property

@@ -14,12 +14,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   isLoggedIn = false;
   isLoginFailed = false;
-  roles: string[] = [];
   returnUrl: string = "";
+  errorMessage = [''];
   submitted = false;
-
   authServicerSub: Subscription = new Subscription;
-  routeService: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -31,9 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoggedIn = this.tokenStorage.isLoggedIn();
-    if (this.isLoggedIn) {
-      this.roles = this.tokenStorage.getUser().roles;
-    }
+
     this.form = this.formBuilder.group({
       email:  [
         null,
@@ -61,7 +57,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.submitted = true;
     // stop here if form is invalid
-    if (this.form!.invalid) {
+    if (this.form.invalid) {
       return;
     }
 
@@ -74,18 +70,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         this.isLoginFailed = false;
         this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getUser().roles;
-        this.returnUrl = this.routeService.getPreviousUrl() || '';
-        this.reloadPage();
       },
       (error) => {
+        this.errorMessage = error.error.message;
         this.isLoginFailed = true;
       }
     );
-  }
-
-  reloadPage() {
-    window.location.reload();
   }
 
   redirectToHome() {

@@ -11,8 +11,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
-// const emailRegex = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$';
-
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',

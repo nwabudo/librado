@@ -34,18 +34,19 @@
           <div class="form-row">
             <div class="col form-group">
               <label for="email">Email</label>
-              <input type="email" formControlName="email" class="form-control" name="email" value="" [ngClass]="{'is-invalid' : (registerFormControl?.email.touched && registerFormControl?.email?.invalid), 
-                'is-loading': registerFormControl?.email.pending }" />
+              <input type="email" formControlName="email" class="form-control" name="email" 
+              [ngClass]="{'is-invalid' : (registerFormControl.email?.touched && registerFormControl.email.invalid), 
+                'is-loading': registerFormControl.email?.pending }" />
               <span class="text-danger"
-                *ngIf="registerFormControl.email.touched  && registerFormControl.email.errors?.required">
+                *ngIf="registerFormControl.email?.touched  && registerFormControl.email?.errors?.required">
                 Email is required
               </span>
               <span class="text-danger"
-                *ngIf="(registerFormControl.email.touched) && registerFormControl.email.errors?.email">
+                *ngIf="registerFormControl.email?.touched && registerFormControl.email.errors?.email">
                 Enter a valid email address!
               </span>
               <span class="text-danger"
-                *ngIf="registerFormControl.email.touched && registerFormControl.email.errors?.emailExists">
+                *ngIf="registerFormControl.email?.touched && registerFormControl.email.errors?.emailExists">
                 Email already exist Kindly login
               </span>
               <small class="form-text text-muted">We'll never share your email with anyone else.</small>
