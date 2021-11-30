@@ -4,6 +4,13 @@
 
 Only one User can perform the test, and the details are used as constants in the application
 
+## Stack
+
+* Persistence store: H2 In-memory Database
+* Backend: Spring-Boot 
+* Awesome Angular on the client
+* CSS based on [Twitter's bootstrap](http://getbootstrap.com/)
+
 ## Backend
 
 The backend was built using Java 11 and Spring Boot 2.6.0 
@@ -37,9 +44,17 @@ From this Directory, navigate to the root of the project via command line and ex
 
 `cd frontend`
 
-### Development server
+### Client App Server
 
-Run `ng serve` to launch the dev server. Navigate to `http://localhost:4200/`.
+* Install local dependencies (from the project root folder):
+
+    ```
+    npm install
+    ```
+    
+  (This will install the dependencies declared in the frontend/package.json file)
+
+* Run `ng serve` to launch the dev server. Navigate to `http://localhost:4200/`.
 
 ### Code scaffolding
 
