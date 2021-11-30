@@ -1,0 +1,24 @@
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-3" *ngFor="let book of books">
+            <div class="card mb-4 shadow-sm">
+                <img class="card-img-top"
+                    alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;"
+                    src="https://via.placeholder.com/150?text=Placeholder" />
+                <div class="card-body">
+                    <p class="card-text">{{ (book.bookTitle.length > 30) ? (book.bookTitle | slice:0:30) + '...' :
+                        (book.bookTitle) }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">9 mins</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="books?.length == 0 || !books" class="col-md-12 alert alert-warning mt-3">
+        <span>There are no Available Book! </span>
+    </div>
+
+</div>

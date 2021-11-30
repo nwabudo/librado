@@ -4,7 +4,7 @@
         <div class="container d-flex justify-content-between">
 
             <a class="not-select navbar-brand d-flex align-items-center">
-                <img src="../../../assets/svg/book-opened-symmetrical-shape-svgrepo-com.svg" alt="Book Image" width="40" height="40" >
+                <img src="assets/svg/book-opened-symmetrical-shape-svgrepo-com.svg" alt="Book Image" width="40" height="40" >
                 <strong class="px-2 brand-name"> Libra</strong>
             </a>
 
@@ -18,8 +18,8 @@
                     <li class="nav-item active">
                         <a routerLink = "/home" class="nav-link">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/contact">Contact Us</a>
+                    <li *ngIf="isLoggedIn" class="nav-item">
+                        <a class="nav-link" routerLink="/borrow-list">Borrowed List</a>
                     </li>
                     <li *ngIf="!isLoggedIn" class="nav-item">
                         <a class="nav-link" routerLink="/signup">Sign up</a>

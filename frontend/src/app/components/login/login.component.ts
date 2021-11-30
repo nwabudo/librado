@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 import { TokenStorageService } from 'src/app/services/token-storage.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { UserModel } from 'src/app/common/user-model';
+
 
 @Component({
   selector: 'app-login',
@@ -13,8 +15,6 @@ import { Subscription } from 'rxjs';
 export class LoginComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   isLoggedIn = false;
-  isLoginFailed = false;
-  returnUrl: string = "";
   errorMessage = [''];
   submitted = false;
   authServicerSub: Subscription = new Subscription;
@@ -22,16 +22,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService,
+    private authService: UserService,
     private tokenStorage: TokenStorageService,
     private route: ActivatedRoute,
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this.isLoggedIn = this.tokenStorage.isLoggedIn();
+
+    this.isLoggedIn = !!this.tokenStorage.getToken();
 
     this.form = this.formBuilder.group({
-      email:  [
+      email: [
         null,
         Validators.compose([
           Validators.required,
@@ -39,11 +40,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         ]),
       ]
     });
-
-    this.returnUrl = this.route.snapshot.queryParams.returnUrl || '';
-    if (this.returnUrl.endsWith('login')) {
-      this.returnUrl = '';
-    }
 
     if (this.isLoggedIn) {
       this.redirectToHome();
@@ -61,30 +57,26 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log(this.form);
-
-    this.authServicerSub = this.authService.login(this.form.value).subscribe(
-      (data) => {
-        this.tokenStorage.saveToken(data.accessToken);
+    this.authServicerSub = this.authService.findByEmail(this.form.controls.email.value).subscribe(
+      (data: UserModel) => {
+        this.tokenStorage.saveToken(data.email);
         this.tokenStorage.saveUser(data);
 
-        this.isLoginFailed = false;
         this.isLoggedIn = true;
+        this.reloadPage();
       },
       (error) => {
-        this.errorMessage = error.error.message;
-        this.isLoginFailed = true;
+        alert(error.error.message);
       }
     );
   }
 
-  redirectToHome() {
-    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+  reloadPage() {
+    window.location.reload();
+  }
 
-    this.router.navigateByUrl(this.router.url).then(() => {
-      this.router.navigated = true;
-      this.router.navigate([this.returnUrl]);
-    });
+  redirectToHome() {
+    this.router.navigateByUrl('/home');
   }
 
   ngOnDestroy(): void {

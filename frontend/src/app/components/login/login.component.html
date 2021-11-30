@@ -1,13 +1,13 @@
 <!-- ========================= SECTION CONTENT ========================= -->
-<section class="section-conten padding-y" style="min-height:84vh">
+<section class="section-conten padding-y" style="min-height:75vh; margin-top:100px;">
 
     <!-- ============================ COMPONENT LOGIN   ================================= -->
-    <div class="card mx-auto" style="max-width: 400px; margin-top:100px;" *ngIf="!isLoggedIn">
+    <div class="card mx-auto" style="max-width: 400px;" *ngIf="!isLoggedIn">
       <div class="card-body">
         <h4 class="card-title mb-4">Sign in</h4>
   
         <form autocomplete="off" [formGroup]="form" (ngSubmit)="onSubmit()" name="form">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Email</label>
             <input name="email" type="email" formControlName="email" class="form-control"
               placeholder="sample.name@yourmail.com" required="required"
