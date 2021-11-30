@@ -5,7 +5,9 @@ import { ApiResponse } from 'src/app/common/api-response';
 import { BookModel } from 'src/app/common/book-model';
 import { BorrowModel } from 'src/app/common/borrow-model';
 import { BookResponse, BookService } from 'src/app/services/book.service';
-import { TokenStorageService } from 'src/app/services/token-storage.service';
+import { environment } from 'src/environments/environment';
+
+const USER_ID = environment.userId;
 
 @Component({
   selector: 'app-home',
@@ -15,21 +17,15 @@ import { TokenStorageService } from 'src/app/services/token-storage.service';
 export class HomeComponent implements OnInit {
 
   books: BookModel[] = []
-  isLoggedIn = false;
   currentPage = 1;
   bookServiceSub: Subscription = new Subscription;
 
   constructor(
-    private bookService: BookService,
-    private tokenStorageService: TokenStorageService,
-    private router: Router
-  ) {
-
-  }
+    private bookService: BookService
+  ) {}
 
   ngOnInit(): void {
     this.listBooks();
-    this.isLoggedIn = !!this.tokenStorageService.getToken();
   }
 
   listBooks() {
@@ -40,24 +36,17 @@ export class HomeComponent implements OnInit {
   processPaginate(): any {
     return (res: BookResponse) => {
       if (res.data && res.status) {
-        this.books = res.data.content;
+        this.books = res.data;
       }
     }
   }
 
   borrowAndReturnBook(book: BookModel, action: string) {
 
-    if(!this.isLoggedIn){
-      alert(`Kindly Login before continuing ${action} action`);
-      return;
-    }
-
-    const userId: number = this.tokenStorageService.getUser().id;
     const borrowModel = <BorrowModel>({
-      userId: userId,
+      userId: USER_ID,
       isbnCode: book.bookISBNCode
     });
-    console.log(borrowModel);
     this.bookServiceSub = this.bookService.borrowAndReturnBook(borrowModel, action)
       .subscribe(
         this.extractMessage(),

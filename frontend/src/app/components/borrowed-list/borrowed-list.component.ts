@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BookModel } from 'src/app/common/book-model';
 import { BookResponse, BookService } from 'src/app/services/book.service';
-import { TokenStorageService } from 'src/app/services/token-storage.service';
+import { environment } from 'src/environments/environment';
+
+const USER_ID = environment.userId;
 
 @Component({
   selector: 'app-borrowed-list',
@@ -15,7 +17,6 @@ export class BorrowedListComponent implements OnInit {
   bookServiceSub: Subscription = new Subscription;
   
   constructor(
-    private tokenStorageService: TokenStorageService,
     private bookService: BookService) { }
 
   ngOnInit(): void {
@@ -23,7 +24,7 @@ export class BorrowedListComponent implements OnInit {
   }
 
   fetchBorrowedBook() {
-    const userId: number = this.tokenStorageService.getUser().id;
+    const userId: number = USER_ID;
     this.bookServiceSub = this.bookService.fetchAllBorrowedBooks(userId)
       .subscribe(this.processPaginate());
   }
@@ -31,7 +32,7 @@ export class BorrowedListComponent implements OnInit {
   processPaginate(): any{
     return (res: BookResponse) => {
       if (res.data && res.status) {
-        this.books = res.data.content;
+        this.books = res.data;
       }
     }
   }

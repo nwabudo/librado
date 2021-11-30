@@ -6,7 +6,7 @@ import { ApiResponse } from '../common/api-response';
 import { BookModel } from '../common/book-model';
 import { BorrowModel } from '../common/borrow-model';
 
-const API_URL = environment.apiBaseUrl + 'book';
+const API_URL = environment.apiBaseUrl + 'books';
 const PAGE_SIZE = 6;
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -32,7 +32,7 @@ export class BookService {
   }
 
   fetchAllBorrowedBooks(userId: number): Observable<BookResponse>{
-    const url = `${API_URL}/borrow/${userId}`;
+    const url = `${API_URL}/borrowed?userId=${userId}`;
     return this.http.get<BookResponse>(url);
   }
 
@@ -52,15 +52,5 @@ export class BookService {
 export interface BookResponse {
   message: string;
   status: boolean;
-  data:{
-    content: BookModel[];
-    page: {
-      // Current Size per Page
-      size: number;
-      totalElements: number;
-      totalPages: number;
-      number: number;
-    };
-  }
-  
+  data:BookModel[]
 }

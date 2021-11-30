@@ -18,17 +18,8 @@
                     <li class="nav-item active">
                         <a routerLink = "/home" class="nav-link">Home</a>
                     </li>
-                    <li *ngIf="isLoggedIn" class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" routerLink="/borrow-list">Borrowed List</a>
-                    </li>
-                    <li *ngIf="!isLoggedIn" class="nav-item">
-                        <a class="nav-link" routerLink="/signup">Sign up</a>
-                    </li>
-                    <li *ngIf="!isLoggedIn" class="nav-item">
-                        <a class="nav-link" routerLink="/login">Login</a>
-                    </li>
-                    <li *ngIf="isLoggedIn" class="nav-item">
-                        <a class="nav-link" (click)="logout()" style="cursor: pointer;">Logout</a>
                     </li>
                 </ul>
             </div>
