@@ -19,24 +19,15 @@ const httpOptions = {
 export class BookService {
 
   constructor(
-    private http: HttpClient){}
+    private http: HttpClient) { }
 
-  fetchAllAvailableBooks(page: number): Observable<BookResponse>{
+  fetchAllAvailableBooks(page: number): Observable<BookResponse> {
     const url = `${API_URL}?page=${page}&size=${PAGE_SIZE}`;
     return this.http.get<BookResponse>(url);
   }
 
   borrowAndReturnBook(borrowModel: BorrowModel, action: string): Observable<ApiResponse> {
     const url = `${API_URL}/${action}`;
-    return this.common(url, borrowModel);
-  }
-
-  fetchAllBorrowedBooks(userId: number): Observable<BookResponse>{
-    const url = `${API_URL}/borrowed?userId=${userId}`;
-    return this.http.get<BookResponse>(url);
-  }
-
-  common(url: string, borrowModel: BorrowModel): Observable<ApiResponse> {
     return this.http.put<ApiResponse>(
       url,
       {
@@ -47,10 +38,15 @@ export class BookService {
     );
   }
 
+  fetchAllBorrowedBooks(userId: number): Observable<BookResponse> {
+    const url = `${API_URL}/borrowed?userId=${userId}`;
+    return this.http.get<BookResponse>(url);
+  }
+
 }
-  
+
 export interface BookResponse {
   message: string;
   status: boolean;
-  data:BookModel[]
+  data: BookModel[]
 }

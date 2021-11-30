@@ -37,4 +37,9 @@ export class BorrowedListComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.bookServiceSub) {
+      this.bookServiceSub.unsubscribe();
+    }
+  }
 }
