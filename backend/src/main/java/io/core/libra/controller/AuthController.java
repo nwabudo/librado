@@ -16,6 +16,7 @@ import javax.validation.constraints.Email;
 @AllArgsConstructor
 @RequestMapping("api/v1/auth")
 @Validated
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
     private final UserService userService;

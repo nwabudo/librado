@@ -43,23 +43,4 @@ public class BookAssembler extends RepresentationModelAssemblerSupport<Book, Boo
 		return bookModels;
 	}
 
-	private List<BookDTO> toBookDTO(List<Book> bookList) {
-		if (bookList == null || bookList.isEmpty())
-			return Collections.emptyList();
-
-		return bookList.stream()
-				.map(book -> BookDTO.builder()
-						.bookISBNCode(book.getBookISBNCode())
-						.bookTitle(book.getBookTitle())
-						.bookImageUrl(book.getBookImageUrl())
-						.authorName(book.getAuthorName())
-						.quantity(book.getQuantity())
-						.build()
-						.add(linkTo(
-							methodOn(BookController.class)
-									.getByBookISBNCode(book.getBookISBNCode()))
-							.withSelfRel()))
-				.collect(Collectors.toList());
-	}
-
 }

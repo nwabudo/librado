@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("api/v1/book")
+@CrossOrigin(origins = "http://localhost:4200")
 public class BookController {
 
     private final BookService bookService;
@@ -51,5 +52,14 @@ public class BookController {
     @RequestMapping(value = "/return", method = RequestMethod.PUT)
     public ResponseEntity<ApiResponse<String>> returnBook(@Valid @RequestBody BorrowDTO borrowDTO){
         return new ResponseEntity<>(bookService.returnBook(borrowDTO), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/borrow/{userId}", method = RequestMethod.GET, produces = { "application/hal+json" })
+    public ResponseEntity<ApiResponse<CollectionModel<BookDTO>>> getUsersBorrowedBooks(
+            @PathVariable Long userId) {
+        List<Book> books = this.bookService.getUsersBorrowedBooks(userId);
+        return new ResponseEntity<>(
+                new ApiResponse<>(bookAssembler.toCollectionModel(books)),
+                HttpStatus.OK);
     }
 }

@@ -17,10 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -114,6 +111,14 @@ public class BookServiceImpl implements BookService {
             log.error(ex.getMessage());
             return new ApiResponse<>(Messages.PROBLEM_BORROWING_BOOK.getMessage(), false);
         }
+    }
+
+    @Override
+    public List<Book> getUsersBorrowedBooks(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
+        List<Book> books = new ArrayList<>(user.getBooks());
+        return books;
     }
 
     private int extractIntegerValue(Property property){

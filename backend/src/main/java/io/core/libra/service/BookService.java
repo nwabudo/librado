@@ -16,4 +16,6 @@ public interface BookService {
     ApiResponse<String> borrowBook(BorrowDTO borrowDTO);
 
     ApiResponse<String> returnBook(BorrowDTO borrowDTO);
+
+    List<Book> getUsersBorrowedBooks(Long userId);
 }

@@ -173,4 +173,14 @@ class BookServiceImplTest extends BaseTest {
                 String.format(MESSAGE, expectedResponse.getStatus(), actualResponse.getStatus()));
     }
 
+    @Test
+    @DisplayName("Get all Books borrowed by User")
+    void getUsersBorrowedBooks() {
+        bookService.borrowBook(new BorrowDTO("ISBN345872JA", 1L));
+
+        int expectedSize = 1;
+        List<Book> books = bookService.getUsersBorrowedBooks(1L);
+        assertEquals(expectedSize, books.size(),
+                String.format(MESSAGE, expectedSize, books.size()));
+    }
 }

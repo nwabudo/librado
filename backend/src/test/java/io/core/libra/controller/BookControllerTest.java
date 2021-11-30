@@ -61,6 +61,26 @@ class BookControllerTest extends BaseTest {
         getBookByISBNCode(borrowDTO.getIsbnCode(), "$.data.quantity", 10, status().isOk());
     }
 
+    @Test
+    @DisplayName("Get Borrowed Books of a valid User")
+    void pass_when_getting_books_of_a_valid_user() throws Exception {
+        getAllBorrowedBook(1L, "$.message", Messages.SUCCESS.getMessage(), status().isOk());
+    }
+
+    @Test
+    @DisplayName("Get Borrowed Books of an invalid User")
+    void fail_when_getting_borrowed_books_of_invalid_user() throws Exception {
+        getAllBorrowedBook(200L, "$.message", Messages.NO_USER_RECORD_FOUND.getMessage(), status().isBadRequest());
+    }
+
+    private void getAllBorrowedBook(long userId, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
+        mockMvc.perform(get(URL_BASE + "/borrow/" + userId)
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(expectedStatus)
+                .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)));
+    }
+
     private void getAllBook(int page, int size, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
         mockMvc.perform(get(URL_BASE + "?page=" + page + "&size=" + size)
                         .contentType(APPLICATION_JSON))
@@ -92,4 +112,5 @@ class BookControllerTest extends BaseTest {
                 .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)))
                 .andDo(print());
     }
+
 }

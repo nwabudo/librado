@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class AuthControllerTest extends BaseTest {
+class AuthControllerIntegrationTest extends BaseTest {
 
     private final String URL_BASE = "/api/v1/auth";
 

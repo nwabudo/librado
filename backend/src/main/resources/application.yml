@@ -2,24 +2,26 @@ spring:
   application:
     name: libra-service
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driverClassName: ${DB_DRIVER:org.h2.Driver}
   jpa:
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: ${DB_DIALECT:org.hibernate.dialect.H2Dialect}
         show-sql: true
         jdbc:
           time_zone: UTC
-    open-in-view: false #this config disables database queries which may be performed during view rendering
   jackson:
     serialization:
       fail-on-empty-beans: false
+  h2:
+    console:
+      enabled: true
 logging:
   level:
     org:
