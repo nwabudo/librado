@@ -10,23 +10,18 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingPathVariableException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.core.libra.exception.Messages.*;
 
@@ -83,34 +78,6 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
         return buildResponseEntity(MALFORMED_JSON_REQUEST.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected ResponseEntity<Object> handleMissingPathVariable(
-            MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return handleExceptionInternal(ex, getError(ex), headers, status, request);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
-            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
-        return handleExceptionInternal(ex, getError(ex), headers, status, request);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(
-            MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return handleExceptionInternal(ex, getError(ex), headers, status, request);
-    }
-
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
@@ -151,22 +118,6 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
     protected ResponseEntity<Object> handleHttpMessageNotWritable(
             HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return buildResponseEntity(ERROR_WRITING_JSON_RESPONSE.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
-     * Handle NoHandlerFoundException
-     *
-     * @param ex      Exception Object
-     * @param headers Headers
-     * @param status  Status
-     * @param request Request
-     * @return ResponseEntity<Object>
-     */
-    @Override
-    protected ResponseEntity<Object> handleNoHandlerFoundException(
-            NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String message = String.format("Could not find the %s method for URL %s", ex.getHttpMethod(), ex.getRequestURL());
-        return buildResponseEntity(message, HttpStatus.NOT_FOUND);
     }
 
     private ResponseEntity<Object> buildResponseEntity(String apiResponse, HttpStatus status) {

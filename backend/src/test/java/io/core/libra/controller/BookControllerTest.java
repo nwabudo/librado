@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BookControllerTest extends BaseTest {
 
-    private final String URL_BASE = "/api/v1/book";
+    private final String URL_BASE = "/api/v1/books";
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,18 +30,6 @@ class BookControllerTest extends BaseTest {
     @Test
     void getAllBooks() throws Exception {
         getAllBook(0, 5, "$.message", Messages.SUCCESS.getMessage(), status().isOk());
-    }
-
-    @DisplayName("Find a Book by valid ISBN Code")
-    @Test
-    void getByBookISBNCode() throws Exception {
-        getBookByISBNCode("ISBN345872JA", "$.data.bookTitle", "Building APIs: Know How", status().isOk());
-    }
-
-    @DisplayName("Find a Book by invalid ISBN Code")
-    @Test
-    void getByBookISBNCodeFail() throws Exception {
-        getBookByISBNCode("0012ISBN345872JA", "$.message", Messages.NO_BOOK_RECORD_FOUND.getMessage(), status().isNotFound());
     }
 
     @Test
@@ -55,15 +43,16 @@ class BookControllerTest extends BaseTest {
         BorrowDTO borrowDTO = new BorrowDTO("ISBN3438092JO", 1L);
 
         borrowBook(borrowDTO, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
-        getBookByISBNCode(borrowDTO.getIsbnCode(), "$.data.quantity", 9, status().isOk());
 
         returnBook(borrowDTO, "$.message", Messages.SUCCESS_RETURNING_BOOK.getMessage(), status().isOk());
-        getBookByISBNCode(borrowDTO.getIsbnCode(), "$.data.quantity", 10, status().isOk());
     }
 
     @Test
     @DisplayName("Get Borrowed Books of a valid User")
     void pass_when_getting_books_of_a_valid_user() throws Exception {
+        BorrowDTO borrowDTO = new BorrowDTO("ISBN3438092JO", 1L);
+        borrowBook(borrowDTO, "$.message", Messages.SUCCESS_BORROWING_BOOK.getMessage(), status().isOk());
+
         getAllBorrowedBook(1L, "$.message", Messages.SUCCESS.getMessage(), status().isOk());
     }
 
@@ -74,7 +63,7 @@ class BookControllerTest extends BaseTest {
     }
 
     private void getAllBorrowedBook(long userId, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
-        mockMvc.perform(get(URL_BASE + "/borrow/" + userId)
+        mockMvc.perform(get(URL_BASE + "/borrowed?userId=" + userId)
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(expectedStatus)
@@ -83,14 +72,6 @@ class BookControllerTest extends BaseTest {
 
     private void getAllBook(int page, int size, String jsonPath, String jsonPathValue, ResultMatcher expectedStatus) throws Exception {
         mockMvc.perform(get(URL_BASE + "?page=" + page + "&size=" + size)
-                        .contentType(APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(expectedStatus)
-                .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)));
-    }
-
-    private void getBookByISBNCode(String isbnCode, String jsonPath, Object jsonPathValue, ResultMatcher expectedStatus) throws Exception {
-        mockMvc.perform(get(URL_BASE + "/" + isbnCode)
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(expectedStatus)

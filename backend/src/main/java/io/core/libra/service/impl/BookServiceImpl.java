@@ -4,6 +4,7 @@ import io.core.libra.dao.BookRepository;
 import io.core.libra.dao.PropertyRepository;
 import io.core.libra.dao.UserRepository;
 import io.core.libra.dtos.ApiResponse;
+import io.core.libra.dtos.BookDTO;
 import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.entity.Book;
 import io.core.libra.entity.Property;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,20 +34,11 @@ public class BookServiceImpl implements BookService {
     private final int DEFAULT_USER_LIMIT = 2;
 
     @Override
-    public Optional<Book> findBookByISBNCode(String isbnCode) {
-        try{
-            return bookRepository.findByBookISBNCode(isbnCode);
-        }catch(Exception ex){
-            log.error(ex.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<Book> getBooks(int page, int size) {
+    public List<BookDTO> getBooks(int page, int size) {
         try{
             Pageable pageable = PageRequest.of(page, size);
-            return this.bookRepository.findAllAvailableBooks(pageable);
+            List<Book> books = this.bookRepository.findAllAvailableBooks(pageable);
+            return toCollectionDTO(books);
         }catch(Exception ex){
             log.error(ex.getMessage());
         }
@@ -114,11 +107,23 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getUsersBorrowedBooks(Long userId) {
+    public List<BookDTO> getUsersBorrowedBooks(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
         List<Book> books = new ArrayList<>(user.getBooks());
-        return books;
+        return toCollectionDTO(books);
+    }
+
+    private BookDTO toModel(Book entity) {
+        if(entity == null) return null;
+
+        BookDTO model = new BookDTO();
+        model.setBookImageUrl(entity.getBookImageUrl());
+        model.setAuthorName(entity.getAuthorName());
+        model.setBookTitle(entity.getBookTitle());
+        model.setBookISBNCode(entity.getBookISBNCode());
+        model.setQuantity(entity.getQuantity());
+        return model;
     }
 
     private int extractIntegerValue(Property property){
@@ -128,5 +133,12 @@ public class BookServiceImpl implements BookService {
             log.error("Value cannot be Converted to Integer");
         }
         return DEFAULT_USER_LIMIT;
+    }
+
+    private List<BookDTO> toCollectionDTO(List<Book> books) {
+        return books.stream()
+                .map(this::toModel)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }
