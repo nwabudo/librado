@@ -11,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
-@EnableJpaAuditing
 public class LibraApplication {
 
     public static void main(String[] args) {

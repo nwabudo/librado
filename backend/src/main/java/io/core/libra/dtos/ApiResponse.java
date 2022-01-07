@@ -28,6 +28,13 @@ public class ApiResponse<T> {
         this.data = null;
     }
 
+    public ApiResponse(String message) {
+        timestamp = new Date().toString();
+        this.status = true;
+        this.message = message;
+        this.data = null;
+    }
+
     public boolean getStatus() {
         return status;
     }
