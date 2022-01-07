@@ -36,8 +36,4 @@ public abstract class AuditModel implements Serializable {
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private Date updatedAt;
-
-    public AuditModel(Long id) {
-        this.id = id;
-    }
 }
