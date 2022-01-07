@@ -16,9 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class PropertyRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     PropertyRepository propertyRepository;
 
     @Test
