@@ -1,7 +1,6 @@
 package io.core.libra.controller;
 
 import io.core.libra.dtos.ApiResponse;
-import io.core.libra.dtos.BookDTO;
 import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.exception.Messages;
 import io.core.libra.exception.UserServiceException;
