@@ -1,38 +1,74 @@
 package io.core.libra.service.impl;
 
-import io.core.libra.BaseTest;
 import io.core.libra.dao.BookRepository;
+import io.core.libra.dao.PropertyRepository;
 import io.core.libra.dao.UserRepository;
 import io.core.libra.dtos.ApiResponse;
 import io.core.libra.dtos.BookDTO;
 import io.core.libra.dtos.BorrowDTO;
 import io.core.libra.entity.Book;
+import io.core.libra.entity.Property;
 import io.core.libra.entity.User;
 import io.core.libra.exception.Messages;
 import io.core.libra.service.BookService;
+import org.hibernate.validator.constraints.ISBN;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
+import static io.core.libra.HelperClass.formBook;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
-class BookServiceImplTest extends BaseTest {
+@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
+class BookServiceImplTest {
 
-    @Autowired
-    private BookService bookService;
-    @Autowired
+    @InjectMocks
+    private BookServiceImpl bookService;
+
+    @Mock
     private UserRepository userRepository;
-    @Autowired
+    @Mock
+    private PropertyRepository propertyRepository;
+    @Mock
     private BookRepository bookRepository;
 
+    private final String ISBN_CODE = "ISBN2340987";
+    private final String USER_LIMIT_CODE = "user.book.limit";
+    private final String USER_LIMIT = "2";
+
     private final String MESSAGE = "Expectations: %s || Actual: %s";
-    ApiResponse<String> expectedSuccessResponse = new ApiResponse<>(Messages.SUCCESS_BORROWING_BOOK.getMessage(), true);
-    ApiResponse<String> expectedFailureResponse = new ApiResponse<>(Messages.BOOK_RECORD_ALREADY_EXISTS.getMessage(), false);
+
+    Book book = formBook(ISBN_CODE, 20);
+    User user = new User("emmanuel", "nwabudo", "emmox@hexad.com");
+    Property property = new Property(USER_LIMIT_CODE, USER_LIMIT);
+
+    @BeforeEach
+    public void setup(){
+        lenient().when(bookRepository.findByBookISBNCode(any())).thenReturn(Optional.of(book));
+        lenient().when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        lenient().when(userRepository.save(any())).thenReturn(user);
+        lenient().when(bookRepository.save(any())).thenReturn(book);
+        lenient().when(propertyRepository.findByPropertyCode(any())).thenReturn(property);
+    }
 
     @Test
     void find_all_available_books() {
-        int expectedSize = 5;
+        List<Book> resp = List.of(formBook(ISBN_CODE, 20));
+        int expectedSize = resp.size();
+        when(bookRepository.findAllAvailableBooks(any())).thenReturn(resp);
 
         List<BookDTO> page = bookService.getBooks(0, expectedSize);
         int actualSize = page.size();
@@ -41,124 +77,91 @@ class BookServiceImplTest extends BaseTest {
     }
 
     @Test
-    void borrow_book_and_confirm_count_from_db_afterwards() {
-        BorrowDTO borrowDTO = new BorrowDTO("ISBN2309872JT", 1L);
-        User user = userRepository.findById(borrowDTO.getUserId()).orElse(new User());
-        Book book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElse(new Book());
+    void borrow_book_and_pass() {
+        BorrowDTO borrowDTO = new BorrowDTO(ISBN_CODE, 1L);
 
         ApiResponse<String> actualResponse = bookService.borrowBook(borrowDTO);
 
-        // We expect that the no of books for the user increments and the quantity of
-        // book left in library decrement by 1 each after borrowing
-        int expectedBookSize = user.getBooks().size() + 1;
-        int expectedBookQty = book.getQuantity() - 1;
+        assertEquals(Messages.SUCCESS_BORROWING_BOOK.getMessage(), actualResponse.getMessage(),
+                String.format(MESSAGE, Messages.SUCCESS_BORROWING_BOOK.getMessage(), actualResponse.getMessage()));
+        assertEquals(true, actualResponse.getStatus(),
+                String.format(MESSAGE, true, actualResponse.getStatus()));
+    }
 
-        assertEquals(expectedSuccessResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedSuccessResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedSuccessResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedSuccessResponse.getStatus(), actualResponse.getStatus()));
+    @Test
+    void borrow_book_fail_as_book_qty_depleted() {
+        // Set bok quantity to zero
+        book.setQuantity(0);
 
-        user = userRepository.findById(borrowDTO.getUserId()).orElse(new User());
-        book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElse(new Book());
+        BorrowDTO borrowDTO = new BorrowDTO(ISBN_CODE, 1L);
 
-        assertEquals(expectedBookSize, user.getBooks().size(),
-                String.format(MESSAGE, expectedBookSize, user.getBooks().size()));
-        assertEquals(expectedBookQty, book.getQuantity(),
-                String.format(MESSAGE, expectedBookQty, book.getQuantity()));
+        ApiResponse<String> actualResponse = bookService.borrowBook(borrowDTO);
+
+        assertEquals(Messages.BOOK_QUANTITY_DEPLETED.getMessage(), actualResponse.getMessage(),
+                String.format(MESSAGE, Messages.BOOK_QUANTITY_DEPLETED.getMessage(), actualResponse.getMessage()));
+        assertEquals(false, actualResponse.getStatus(),
+                String.format(MESSAGE, false, actualResponse.getStatus()));
     }
 
     @Test
     @DisplayName("Borrow Book fail because it exists in users catalogue")
     void borrow_book_fail_as_user_already_borrowed_it() {
-
-        BorrowDTO borrowDTO = new BorrowDTO("ISBN2309872JT", 1L);
         //Borrow the first time
-        bookService.borrowBook(borrowDTO);
+        user.addBook(book);
+
+        BorrowDTO borrowDTO = new BorrowDTO(ISBN_CODE, 1L);
+
         //Borrow again
         ApiResponse<String> actualResponse = bookService.borrowBook(borrowDTO);
 
-        assertEquals(expectedFailureResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedFailureResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedFailureResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedFailureResponse.getStatus(), actualResponse.getStatus()));
+        assertEquals(Messages.BOOK_RECORD_ALREADY_EXISTS.getMessage(), actualResponse.getMessage());
+        assertEquals(false, actualResponse.getStatus());
     }
 
     @Test
     @DisplayName("Borrow Book fail because user limit reached")
     void borrow_book_fail_because_user_limit_reached() {
         //Borrow the first time
-        ApiResponse<String> actualResponse = bookService.borrowBook(new BorrowDTO("ISBN2309872JT", 1L));
-        assertEquals(expectedSuccessResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedSuccessResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedSuccessResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedSuccessResponse.getStatus(), actualResponse.getStatus()));
+        user.addBook(formBook("ISBN56O3O22JA", 50));
 
         // Borrow Second
-        actualResponse = bookService.borrowBook(new BorrowDTO("ISBN345872JA", 1L));
-        assertEquals(expectedSuccessResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedSuccessResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedSuccessResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedSuccessResponse.getStatus(), actualResponse.getStatus()));
+        user.addBook(formBook("ISBN345872JA", 50));
 
         // Try Borrowing the Third Time
-        actualResponse = bookService.borrowBook(new BorrowDTO("ISBN56O3O22JA", 1L));
-        assertEquals(expectedFailureResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedFailureResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedFailureResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedFailureResponse.getStatus(), actualResponse.getStatus()));
+        ApiResponse<String> actualResponse = bookService.borrowBook(new BorrowDTO(ISBN_CODE, 1L));
+
+        assertEquals(Messages.BOOK_RECORD_ALREADY_EXISTS.getMessage(), actualResponse.getMessage(),
+                String.format(MESSAGE, Messages.BOOK_RECORD_ALREADY_EXISTS.getMessage(), actualResponse.getMessage()));
+        assertEquals(false, actualResponse.getStatus(),
+                String.format(MESSAGE, false, actualResponse.getStatus()));
     }
 
     @Test
     void return_borrowed_book_successfully() {
         ApiResponse<String> expectedResponse = new ApiResponse<>(Messages.SUCCESS_RETURNING_BOOK.getMessage(), true);
-        BorrowDTO borrowDTO = new BorrowDTO("ISBN2309872JT", 1L);
 
-        //Borrow the Book ISBN2309872JT
-        ApiResponse<String> actualResponse = bookService.borrowBook(borrowDTO);
-        assertEquals(expectedSuccessResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedSuccessResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedSuccessResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedSuccessResponse.getStatus(), actualResponse.getStatus()));
-
-
-        User user = userRepository.findById(borrowDTO.getUserId()).orElse(new User());
-        Book book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElse(new Book());
+        user.addBook(book);
 
         // Return the book
-        actualResponse = bookService.returnBook(borrowDTO);
-
-        int expectedBookSize = user.getBooks().size() - 1;
-        int expectedBookQty = book.getQuantity() + 1;
+        BorrowDTO borrowDTO = new BorrowDTO(ISBN_CODE, 1L);
+        ApiResponse<String> actualResponse = bookService.returnBook(borrowDTO);
 
         assertEquals(expectedResponse.getMessage(), actualResponse.getMessage(),
                 String.format(MESSAGE, expectedResponse.getMessage(), actualResponse.getMessage()));
         assertEquals(expectedResponse.getStatus(), actualResponse.getStatus(),
                 String.format(MESSAGE, expectedResponse.getStatus(), actualResponse.getStatus()));
-
-        user = userRepository.findById(borrowDTO.getUserId()).orElse(new User());
-        book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElse(new Book());
-
-        assertEquals(expectedBookSize, user.getBooks().size(),
-                String.format(MESSAGE, expectedBookSize, user.getBooks().size()));
-        assertEquals(expectedBookQty, book.getQuantity(),
-                String.format(MESSAGE, expectedBookQty, book.getQuantity()));
     }
 
     @Test
     @DisplayName("Return Book Fail because it no longer exists on User's Catalogue")
     void fail_on_returning_book_not_on_users_list() {
         ApiResponse<String> expectedResponse = new ApiResponse<>(Messages.BOOK_RECORD_DOES_NOT_EXISTS.getMessage(), false);
-        BorrowDTO borrowDTO = new BorrowDTO("ISBN2309872JT", 1L);
+        BorrowDTO borrowDTO = new BorrowDTO(ISBN_CODE, 1L);
 
-        //Borrow the Book ISBN2309872JT
-        ApiResponse<String> actualResponse = bookService.borrowBook(borrowDTO);
-        assertEquals(expectedSuccessResponse.getMessage(), actualResponse.getMessage(),
-                String.format(MESSAGE, expectedSuccessResponse.getMessage(), actualResponse.getMessage()));
-        assertEquals(expectedSuccessResponse.getStatus(), actualResponse.getStatus(),
-                String.format(MESSAGE, expectedSuccessResponse.getStatus(), actualResponse.getStatus()));
+        //Borrow the Book
+        user.addBook(book);
 
-        // Return the book - First Time
-        actualResponse = bookService.returnBook(borrowDTO);
+        ApiResponse<String> actualResponse = bookService.returnBook(borrowDTO);
         assertEquals(Messages.SUCCESS_RETURNING_BOOK.getMessage(), actualResponse.getMessage(),
                 String.format(MESSAGE, Messages.SUCCESS_RETURNING_BOOK.getMessage(), actualResponse.getMessage()));
         assertEquals(true, actualResponse.getStatus(),
@@ -175,13 +178,14 @@ class BookServiceImplTest extends BaseTest {
     @Test
     @DisplayName("Get all Books borrowed by User")
     void fetch_all_books_borrowed_by_user() {
-        bookService.borrowBook(new BorrowDTO("ISBN345872JA", 1L));
+        //Borrow the first time
+        user.addBook(book);
 
-        int expectedSize = 1;
+        int expectedSize = user.getBooks().size();
         List<BookDTO> books = bookService.getUsersBorrowedBooks(1L);
 
         assertEquals(expectedSize, books.size(),
                 String.format(MESSAGE, expectedSize, books.size()));
-        assertEquals("ISBN345872JA", books.get(0).getBookISBNCode());
+        assertEquals(book.getBookISBNCode(), books.get(0).getBookISBNCode());
     }
 }

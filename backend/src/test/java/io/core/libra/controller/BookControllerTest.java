@@ -18,7 +18,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.util.List;
 
-import static io.core.libra.JsonString.asJsonString;
+import static io.core.libra.HelperClass.asJsonString;
+import static io.core.libra.HelperClass.formBookDTO;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -119,12 +120,6 @@ class BookControllerTest {
                 .andExpect(expectedStatus)
                 .andExpect(jsonPath(jsonPath, Is.is(jsonPathValue)))
                 .andDo(print());
-    }
-
-    private BookDTO formBookDTO(String isbnCode){
-        return new BookDTO("Amazing Stories",
-                "Emmanuel Nwabudo", "",
-                isbnCode, 20);
     }
 
 }

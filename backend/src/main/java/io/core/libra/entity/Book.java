@@ -37,4 +37,12 @@ public class Book extends AuditModel {
     public Book(String bookISBNCode) {
         this.bookISBNCode = bookISBNCode;
     }
+
+    public Book(String bookTitle, String authorName, String bookImageUrl, String bookISBNCode, Integer quantity) {
+        this.bookTitle = bookTitle;
+        this.authorName = authorName;
+        this.bookImageUrl = bookImageUrl;
+        this.bookISBNCode = bookISBNCode;
+        this.quantity = quantity;
+    }
 }

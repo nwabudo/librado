@@ -1,7 +1,5 @@
 package io.core.libra.exception;
 
-import io.core.libra.dtos.ApiResponse;
-
 public enum Messages {
 	
 	MISSING_REQUIRED_FIELD("Missing required field. Please check documentation for required fields."),
@@ -15,6 +13,7 @@ public enum Messages {
 	INTERNAL_SERVER_ERROR("An Error has Occurred"),
 	NO_USER_RECORD_FOUND("User Record with Provided Id not Found"),
 	NO_BOOK_RECORD_FOUND("Book with Provided ISBN Code not Found"),
+	BOOK_QUANTITY_DEPLETED("Book with Provided ISBN Code not available at the moment"),
 	INVALID_EMAIL("must be a well-formed email address"),
 	VALIDATION_ERRORS("Validation Errors"),
 	ERROR_WRITING_JSON_RESPONSE("Error writing JSON output"),

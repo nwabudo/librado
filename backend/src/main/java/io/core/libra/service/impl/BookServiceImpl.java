@@ -48,19 +48,24 @@ public class BookServiceImpl implements BookService {
     @Override
     public ApiResponse<String> borrowBook(BorrowDTO borrowDTO) {
         try {
-            User user = userRepository.findById(borrowDTO.getUserId()).orElseThrow(() ->
-                    new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
             Book book = bookRepository.findByBookISBNCode(borrowDTO.getIsbnCode()).orElseThrow(() ->
                     new UserServiceException(Messages.NO_BOOK_RECORD_FOUND.getMessage()));
+
+            // Condition to check if the book qty is greater than zero
+            if(book.getQuantity() == 0){
+                return new ApiResponse<>(Messages.BOOK_QUANTITY_DEPLETED.getMessage(), false);
+            }
+
+            User user = userRepository.findById(borrowDTO.getUserId()).orElseThrow(() ->
+                    new UserServiceException(Messages.NO_USER_RECORD_FOUND.getMessage()));
+
             Property property = propertyRepository.findByPropertyCode(USER_LIMIT_CODE);
-
             int userBookLimit = property == null ? DEFAULT_USER_LIMIT: extractIntegerValue(property);
-
             Set<Book> userBooks = user.getBooks();
 
-            // Condition to check if the user has the book in his collection, has not exceeded
-            // the limit and that the book qty is greater than zero
-            if(!userBooks.contains(book) && userBooks.size() < userBookLimit && book.getQuantity() > 0){
+            // Condition to check if the user does not have the book
+            // in his collection and has not exceeded the limit
+            if(!userBooks.contains(book) && userBooks.size() < userBookLimit){
                 int newQty = book.getQuantity() - 1;
                 book.setQuantity(newQty);
                 user.addBook(book);
