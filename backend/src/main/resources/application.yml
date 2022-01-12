@@ -22,12 +22,6 @@ spring:
   h2:
     console:
       enabled: true
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+
+server:
+  port: ${SERVER_PORT:8082}
